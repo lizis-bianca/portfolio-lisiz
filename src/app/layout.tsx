@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import PageTransition from "@/components/pageTransition";
 import StairTransition from "@/components/stairTransition";
+import { ThemeProvider } from "@/components/themeProvider";
 
 
 const geistSans = Geist({
@@ -35,11 +36,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
       >
+        <ThemeProvider
+                    disableTransitionOnChange
+                    attribute='class'
+                    defaultTheme='system'
+                    enableSystem
+                >
         <Header />
         <StairTransition />
         <PageTransition>
           {children}
         </PageTransition>
+        </ThemeProvider>
       </body>
     </html>
   );
