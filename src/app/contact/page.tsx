@@ -1,39 +1,80 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { CustomEase } from "gsap/CustomEase";
 import { FaGithub, FaLinkedinIn, FaInstagram } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 
 export default function Contact() {
-    let xPosition: number, yPosition: number;
-    let storedXPosition = 0, storedYPosition = 0;
-    let height: number, width: number;
-    const [dizzyIsPlaying, setDizzyIsPlaying] = useState(false);
-  
+    const xPosition = useRef<number>(0)
+    const yPosition = useRef<number>(0)
+    const dizzyIsPlaying = useRef(false);
+    const dimensions = useRef({ width: 0, height: 0 });
+
      // Função para calcular a porcentagem da posição
      function percentage(partialValue: number, totalValue: number) {
       return (100 * partialValue) / totalValue;
     }
-  
-     // Função para lidar com o redimensionamento da janela
-     function updateWindowSize() {
-      height = window.innerHeight;
-      width = window.innerWidth;
+
+    function updateWindowSize() {
+      dimensions.current = {
+        height: window.innerHeight,
+        width:window.innerWidth
+      }
     }
   
     useEffect(() => {
       gsap.registerPlugin(CustomEase);
+      updateWindowSize()
+
+      // Função para atualizar as coordenadas do mouse e detectar movimento rápido
+      function updateScreenCoords(event: MouseEvent) {
+        if (!dizzyIsPlaying.current) {
+          xPosition.current = event.clientX;
+          yPosition.current = event.clientY;
+        }
+        if (!dizzyIsPlaying.current && Math.abs(event.movementX) > 500) {
+          dizzyIsPlaying.current = true;
+          dizzy.restart();
+        }
+      }
+
+      // Função que anima a face com base na posição do mouse
+      function animateFace() {
+        if (!xPosition.current) return;
+        const x = percentage(xPosition.current, dimensions.current.width) - 50;
+        const y = percentage(yPosition.current, dimensions.current.height) - 50;
+        const yHigh = percentage(yPosition.current, dimensions.current.height) - 20;
+        const yLow = percentage(yPosition.current, dimensions.current.height) - 80;
+    
+        gsap.to(".face", { yPercent: yLow / 30, xPercent: x / 30 });
+        gsap.to(".eye", { yPercent: yHigh / 3, xPercent: x / 2 });
+        gsap.to(".inner-face", { yPercent: y / 6, xPercent: x / 8 });
+        gsap.to(".hair-front", { yPercent: yHigh / 15, xPercent: x / 22 });
+        gsap.to([".hair-back", ".shadow"], { yPercent: (yLow / 20) * -1, xPercent: (x / 20) * -1 });
+        gsap.to(".ear", { yPercent: (y / 1.5) * -1, xPercent: (x / 10) * -1 });
+        gsap.to([".eyebrow-left", ".eyebrow-right"], { yPercent: y * 2.5 });
+      }
+
+      // Função para adicionar o evento de movimento do mouse
+      function addMouseEvent() {
+        const safeToAnimate = window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
+        if (safeToAnimate) {
+          window.addEventListener("mousemove", updateScreenCoords);
+          gsap.ticker.add(animateFace);
+          blink.play();
+        }
+      }
+
+      const meTl = gsap.timeline({
+        onComplete: addMouseEvent,
+        delay: 1
+      });
   
       gsap.set('.bg', { transformOrigin: '50% 50%' });
       gsap.set('.ear-right', { transformOrigin: '0% 50%' });
       gsap.set('.ear-left', { transformOrigin: '100% 50%' });
       gsap.set('.me', { opacity: 1 });
-  
-      const meTl = gsap.timeline({
-        onComplete: addMouseEvent,
-        delay: 1
-      });
      
       meTl
         .from(
@@ -78,142 +119,113 @@ export default function Contact() {
           '.glasses',
           {
             duration: 1,
-            keyframes: [{ yPercent: -10 }, { yPercent: -0 }]
+            keyframes: [{ yPercent: -10 }, { yPercent: -0 }],
+            ease: 'elastic.out(0.5, 0.2)'
           },
-          1.4
+          0.75
+        ) 
+        .from(
+          ".eyebrow-right , .eyebrow-left",
+          {
+            duration: 1,
+            yPercent: 300,
+            ease: "elastic.out(0.5, 0.2)"
+          },
+          0.7
+        )
+        .to(
+          ".eye-right , .eye-left",
+          {
+            duration: 0.01,
+            opacity: 1
+          },
+          0.85
+        )
+        .to(
+          ".eye-right-2 , .eye-left-2",
+          {
+            duration: 0.01,
+            opacity: 0
+          },
+          0.85
         );
-  
-      gsap.to(".me", {
-        duration: 0.2,
-        rotation: 8, 
-        repeat: 1, 
-        repeatDelay: 10, 
-        yoyo: true,   
-        ease: "none"
+      
+        // Função de animação de blink
+      const blink = gsap.timeline({
+        repeat: -1,
+        repeatDelay: 5,
+        paused: true
       });
+
+      blink
+      .to(".eye-right, .eye-left", { duration: 0.01, opacity: 0 }, 0)
+      .to(".eye-right-2, .eye-left-2", { duration: 0.01, opacity: 1 }, 0)
+      .to(".eye-right, .eye-left", { duration: 0.01, opacity: 1 }, 0.15)
+      .to(".eye-right-2 , .eye-left-2", { duration: 0.01, opacity: 0.15 }, 0.15);
   
        // Definindo a animação de tontura (dizzy)
        const dizzy = gsap.timeline({
         paused: true,
         onComplete: () => {
-          setDizzyIsPlaying(false);
+          dizzyIsPlaying.current = false;
         }
       });
   
       dizzy
-      .to('.eyes', { opacity: 0, duration: 0.01 })
-      .to('.dizzy', { opacity: 0.3, duration: 0.01 })
-      .to('.mouth', { opacity: 0, duration: 0.01 })
-      .to('.oh', { opacity: 0.85, duration: 0.01 })
+      .to('.eyes', { opacity: 0, duration: 0.01 }, 0)
+      .to('.dizzy', { opacity: 0.3, duration: 0.01 }, 0)
+      .to('.mouth', { opacity: 0, duration: 0.01 }, 0)
+      .to('.oh', { opacity: 0.85, duration: 0.01 }, 0)
       .to('.head, .hair-back, .shadow', {
         rotate: 2,
         transformOrigin: '50% 50%',
         ease: 'myWiggle',
         duration: 6
-      })
+      }, 0)
       .to('.me', {
         rotate: -2,
         transformOrigin: '50% 100%',
         ease: 'myWiggle',
         duration: 6
-      })
+      }, 0)
       .to('.me', {
         scale: 0.99,
         transformOrigin: '50% 100%',
         ease: 'lessWiggle',
         duration: 4
-      })
+      }, 0)
       .to('.dizzy-1', {
         rotate: -360,
         repeat: 5,
         transformOrigin: '50% 50%',
         duration: 1,
         ease: 'none'
-      })
+      }, 0.01)
       .to('.dizzy-2', {
         rotate: 360,
         repeat: 5,
         transformOrigin: '50% 50%',
         duration: 1,
         ease: 'none'
-      })
+      }, 0.01)
       .to('.eyes', { opacity: 1, duration: 0.01 }, 4)
       .to('.dizzy', { opacity: 0, duration: 0.01 }, 4)
       .to('.oh', { opacity: 0, duration: 0.01 }, 4)
       .to('.mouth', { opacity: 1, duration: 0.01 }, 4);
-  
-      // Atualizando o tamanho da janela
-      updateWindowSize();
-      window.addEventListener("resize", updateWindowSize);
-  
-      // Função de animação de blink
-     const blink = gsap.timeline({
-      repeat: -1,
-      repeatDelay: 5,
-      paused: true
-    });
-  
-    blink
-      .to(".eye-right, .eye-left", { duration: 0.01, opacity: 0 }, 0)
-      .to(".eye-right-2, .eye-left-2", { duration: 0.01, opacity: 1 }, 0)
-      .to(".eye-right, .eye-left", { duration: 0.01, opacity: 1 }, 0.15)
-      .to(".eye-right-2 , .eye-left-2", { duration: 0.01, opacity: 0 }, 0.15);
-  
-  
-    // Função que anima a face com base na posição do mouse
-    function animateFace() {
-      if (!xPosition) return;
-      if (storedXPosition === xPosition && storedYPosition === yPosition) return; // Não recalcula se as coordenadas não mudaram
-  
-      const x = percentage(xPosition, width) - 50;
-      const y = percentage(yPosition, height) - 50;
-      const yHigh = percentage(yPosition, height) - 20;
-      const yLow = percentage(yPosition, height) - 80;
-  
-      gsap.to(".face", { yPercent: yLow / 30, xPercent: x / 30 });
-      gsap.to(".eye", { yPercent: yHigh / 3, xPercent: x / 2 });
-      gsap.to(".inner-face", { yPercent: y / 6, xPercent: x / 8 });
-      gsap.to(".hair-front", { yPercent: yHigh / 15, xPercent: x / 22 });
-      gsap.to([".hair-back", ".shadow"], { yPercent: (yLow / 20) * -1, xPercent: (x / 20) * -1 });
-      gsap.to(".ear", { yPercent: (y / 1.5) * -1, xPercent: (x / 10) * -1 });
-      gsap.to([".eyebrow-left", ".eyebrow-right"], { yPercent: y * 2.5 });
-  
-      storedXPosition = xPosition;
-      storedYPosition = yPosition;
-    }
-  
-    // Função para atualizar as coordenadas do mouse e detectar movimento rápido
-    function updateScreenCoords(event: MouseEvent) {
-      if (!dizzyIsPlaying) {
-        xPosition = event.clientX;
-        yPosition = event.clientY;
-      }
-      if (!dizzyIsPlaying && Math.abs(event.movementX) > 500) {
-        setDizzyIsPlaying(true);
-        dizzy.restart();
-      }
-    }
-  
-    // Função para adicionar o evento de movimento do mouse
-    function addMouseEvent() {
-      const safeToAnimate = window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
-      if (safeToAnimate) {
-        window.addEventListener("mousemove", updateScreenCoords);
-        gsap.ticker.add(animateFace);
-        blink.play();
-      }
-    }
+
+       updateWindowSize()
+       window.addEventListener("resize", updateWindowSize);
   
       return () => {
         window.removeEventListener("resize", updateWindowSize);
       };
-    }, []);
+    }, [ dizzyIsPlaying, xPosition, yPosition]);
 
     return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="dark:bg-[#232329] bg-[#BA9470] text-primary dark:text-white p-8 rounded-lg flex flex-col md:flex-row items-center">
+    <div className="flex flex-col items-center justify-center h-full mx-auto container xl:pt-8">
+      <div className="dark:bg-[#232329] bg-[#BA9470] text-primary dark:text-white p-8 rounded-lg flex flex-col md:flex-row items-center w-full">
         <div className="md:w-1/2 mb-4 md:mb-0">
-          <h2 className="text-xl font-bold mb-2">I'm always up for a chat.</h2>
+          <h2 className="text-xl font-bold mb-2">I&apos;m always up for a chat.</h2>
           <p className="mb-2">
             <span className="font-bold underline">Pop me an email</span> at hi@aa.com
           </p>
@@ -233,8 +245,8 @@ export default function Contact() {
             </a>
           </div>
         </div>
-        <div className="md:w-1/2 flex justify-center">
-          <svg className="me" width="500" height="400" viewBox="0 10 211.73 180" strokeLinecap="round" strokeLinejoin="round">
+        <div className="md:w-1/2 flex justify-center items-center overflow-hidden">
+          <svg className="me flex-shrink-0 z-50" width="500" height="400" viewBox="0 10 211.73 180" strokeLinecap="round" strokeLinejoin="round">
                 <defs>
                   <clipPath id="background-clip">
                     <path d="M39 153.73s31.57 19.71 77.26 15.21 90.18-37.23 90.36-72.33-8.82-80.28-33.59-86.29C136.84-6.57 114.13-5.82 88-2.82S34.73 11.45 16.71 48.24C-1.5 66.64-4.88 125.2 39 153.73z" fill="none" />

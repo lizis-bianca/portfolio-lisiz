@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button"
 import {FiDownload} from "react-icons/fi"
 import Social from "@/components/social"
 import Photo from "@/components/photo"
+// import { useTranslation } from "react-i18next"
 
 export default function Home() {
+    // const { t } = useTranslation(); 
     return (
     <section className="h-full">
         <div className="container mx-auto h-full">

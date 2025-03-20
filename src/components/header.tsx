@@ -4,6 +4,7 @@ import { Button } from "./ui/button"
 import Nav from "./nav"
 import MobileNav from "./mobileNav"
 import { ModeToggle } from "./modeToggle"
+import LanguageSwitcher from "./languageSwitcher"
 
 
 export default function Header() {
@@ -22,6 +23,7 @@ export default function Header() {
                         <Button>Hire me</Button>
                     </Link>
                     <ModeToggle side="top"/>
+                    <LanguageSwitcher />
                 </div>
                 {/* mobile nav */}
                 <div className="xl:hidden">

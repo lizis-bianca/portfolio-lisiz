@@ -5,7 +5,8 @@ import Header from "@/components/header";
 import PageTransition from "@/components/pageTransition";
 import StairTransition from "@/components/stairTransition";
 import { ThemeProvider } from "@/components/themeProvider";
-
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from "next-intl/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,16 +27,20 @@ export const metadata: Metadata = {
   title: "Lizis Bianca"
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const messages = await getMessages();
+  const locale = await getLocale()
+  
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} antialiased`}
       >
+      <NextIntlClientProvider messages={messages}>
         <ThemeProvider
                     disableTransitionOnChange
                     attribute='class'
@@ -48,6 +53,7 @@ export default function RootLayout({
           {children}
         </PageTransition>
         </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
