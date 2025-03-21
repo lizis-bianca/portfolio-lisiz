@@ -3,11 +3,13 @@ import Link from "next/link"
 import { Button } from "./ui/button"
 import Nav from "./nav"
 import MobileNav from "./mobileNav"
+import { ModeToggle } from "./modeToggle"
+import LanguageSwitcher from "./languageSwitcher"
 
 
 export default function Header() {
     return (
-        <header className="py-8 xl:py-12 text-white">
+        <header className="py-8 xl:py-12 text-black dark:text-white">
             <div className="container mx-auto flex justify-between items-center">
                 <Link href="/">
                     <h1 className="text-4xl font-semibold">
@@ -20,6 +22,8 @@ export default function Header() {
                     <Link href="/contact">
                         <Button>Hire me</Button>
                     </Link>
+                    <ModeToggle side="top"/>
+                    <LanguageSwitcher />
                 </div>
                 {/* mobile nav */}
                 <div className="xl:hidden">

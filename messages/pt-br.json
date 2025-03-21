@@ -1,0 +1,22 @@
+{
+    "homePage": {
+        "p": ""
+    },
+    "languageSwitcher": {
+        "DropdownMenuLabel": "Selecione idioma",
+        "DropdownMenuRadioItem1": "Inglês",
+        "DropdownMenuRadioItem2": "Português"
+    },
+    "modeToggle": {
+        "DropdownMenuItem1": "Claro",
+        "DropdownMenuItem2": "Escuro",
+        "DropdownMenuItem3": "Sistema"
+    },
+    "nav": {
+        "home": "home",
+        "services": "serviços",
+        "resume": "currículo",
+        "work": "trabalho",
+        "contact": "contato"
+    }
+}

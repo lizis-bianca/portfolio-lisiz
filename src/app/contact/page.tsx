@@ -1,37 +1,80 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { CustomEase } from "gsap/CustomEase";
+import { FaGithub, FaLinkedinIn, FaInstagram } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 
 export default function Contact() {
-    let xPosition: number, yPosition: number;
-    let storedXPosition = 0, storedYPosition = 0;
-    let height: number, width: number;
-    const [dizzyIsPlaying, setDizzyIsPlaying] = useState(false);
-  
+    const xPosition = useRef<number>(0)
+    const yPosition = useRef<number>(0)
+    const dizzyIsPlaying = useRef(false);
+    const dimensions = useRef({ width: 0, height: 0 });
+
      // Função para calcular a porcentagem da posição
      function percentage(partialValue: number, totalValue: number) {
       return (100 * partialValue) / totalValue;
     }
-  
-     // Função para lidar com o redimensionamento da janela
-     function updateWindowSize() {
-      height = window.innerHeight;
-      width = window.innerWidth;
+
+    function updateWindowSize() {
+      dimensions.current = {
+        height: window.innerHeight,
+        width:window.innerWidth
+      }
     }
   
     useEffect(() => {
       gsap.registerPlugin(CustomEase);
+      updateWindowSize()
+
+      // Função para atualizar as coordenadas do mouse e detectar movimento rápido
+      function updateScreenCoords(event: MouseEvent) {
+        if (!dizzyIsPlaying.current) {
+          xPosition.current = event.clientX;
+          yPosition.current = event.clientY;
+        }
+        if (!dizzyIsPlaying.current && Math.abs(event.movementX) > 500) {
+          dizzyIsPlaying.current = true;
+          dizzy.restart();
+        }
+      }
+
+      // Função que anima a face com base na posição do mouse
+      function animateFace() {
+        if (!xPosition.current) return;
+        const x = percentage(xPosition.current, dimensions.current.width) - 50;
+        const y = percentage(yPosition.current, dimensions.current.height) - 50;
+        const yHigh = percentage(yPosition.current, dimensions.current.height) - 20;
+        const yLow = percentage(yPosition.current, dimensions.current.height) - 80;
+    
+        gsap.to(".face", { yPercent: yLow / 30, xPercent: x / 30 });
+        gsap.to(".eye", { yPercent: yHigh / 3, xPercent: x / 2 });
+        gsap.to(".inner-face", { yPercent: y / 6, xPercent: x / 8 });
+        gsap.to(".hair-front", { yPercent: yHigh / 15, xPercent: x / 22 });
+        gsap.to([".hair-back", ".shadow"], { yPercent: (yLow / 20) * -1, xPercent: (x / 20) * -1 });
+        gsap.to(".ear", { yPercent: (y / 1.5) * -1, xPercent: (x / 10) * -1 });
+        gsap.to([".eyebrow-left", ".eyebrow-right"], { yPercent: y * 2.5 });
+      }
+
+      // Função para adicionar o evento de movimento do mouse
+      function addMouseEvent() {
+        const safeToAnimate = window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
+        if (safeToAnimate) {
+          window.addEventListener("mousemove", updateScreenCoords);
+          gsap.ticker.add(animateFace);
+          blink.play();
+        }
+      }
+
+      const meTl = gsap.timeline({
+        onComplete: addMouseEvent,
+        delay: 1
+      });
   
       gsap.set('.bg', { transformOrigin: '50% 50%' });
       gsap.set('.ear-right', { transformOrigin: '0% 50%' });
       gsap.set('.ear-left', { transformOrigin: '100% 50%' });
       gsap.set('.me', { opacity: 1 });
-  
-      const meTl = gsap.timeline({
-        onComplete: addMouseEvent,
-        delay: 1
-      });
      
       meTl
         .from(
@@ -76,145 +119,134 @@ export default function Contact() {
           '.glasses',
           {
             duration: 1,
-            keyframes: [{ yPercent: -10 }, { yPercent: -0 }]
+            keyframes: [{ yPercent: -10 }, { yPercent: -0 }],
+            ease: 'elastic.out(0.5, 0.2)'
           },
-          1.4
+          0.75
+        ) 
+        .from(
+          ".eyebrow-right , .eyebrow-left",
+          {
+            duration: 1,
+            yPercent: 300,
+            ease: "elastic.out(0.5, 0.2)"
+          },
+          0.7
+        )
+        .to(
+          ".eye-right , .eye-left",
+          {
+            duration: 0.01,
+            opacity: 1
+          },
+          0.85
+        )
+        .to(
+          ".eye-right-2 , .eye-left-2",
+          {
+            duration: 0.01,
+            opacity: 0
+          },
+          0.85
         );
-  
-      gsap.to(".me", {
-        duration: 0.2,
-        rotation: 8, 
-        repeat: 1, 
-        repeatDelay: 10, 
-        yoyo: true,   
-        ease: "none"
+      
+        // Função de animação de blink
+      const blink = gsap.timeline({
+        repeat: -1,
+        repeatDelay: 5,
+        paused: true
       });
+
+      blink
+      .to(".eye-right, .eye-left", { duration: 0.01, opacity: 0 }, 0)
+      .to(".eye-right-2, .eye-left-2", { duration: 0.01, opacity: 1 }, 0)
+      .to(".eye-right, .eye-left", { duration: 0.01, opacity: 1 }, 0.15)
+      .to(".eye-right-2 , .eye-left-2", { duration: 0.01, opacity: 0.15 }, 0.15);
   
        // Definindo a animação de tontura (dizzy)
        const dizzy = gsap.timeline({
         paused: true,
         onComplete: () => {
-          setDizzyIsPlaying(false);
+          dizzyIsPlaying.current = false;
         }
       });
   
       dizzy
-      .to('.eyes', { opacity: 0, duration: 0.01 })
-      .to('.dizzy', { opacity: 0.3, duration: 0.01 })
-      .to('.mouth', { opacity: 0, duration: 0.01 })
-      .to('.oh', { opacity: 0.85, duration: 0.01 })
+      .to('.eyes', { opacity: 0, duration: 0.01 }, 0)
+      .to('.dizzy', { opacity: 0.3, duration: 0.01 }, 0)
+      .to('.mouth', { opacity: 0, duration: 0.01 }, 0)
+      .to('.oh', { opacity: 0.85, duration: 0.01 }, 0)
       .to('.head, .hair-back, .shadow', {
         rotate: 2,
         transformOrigin: '50% 50%',
         ease: 'myWiggle',
         duration: 6
-      })
+      }, 0)
       .to('.me', {
         rotate: -2,
         transformOrigin: '50% 100%',
         ease: 'myWiggle',
         duration: 6
-      })
+      }, 0)
       .to('.me', {
         scale: 0.99,
         transformOrigin: '50% 100%',
         ease: 'lessWiggle',
         duration: 4
-      })
+      }, 0)
       .to('.dizzy-1', {
         rotate: -360,
         repeat: 5,
         transformOrigin: '50% 50%',
         duration: 1,
         ease: 'none'
-      })
+      }, 0.01)
       .to('.dizzy-2', {
         rotate: 360,
         repeat: 5,
         transformOrigin: '50% 50%',
         duration: 1,
         ease: 'none'
-      })
+      }, 0.01)
       .to('.eyes', { opacity: 1, duration: 0.01 }, 4)
       .to('.dizzy', { opacity: 0, duration: 0.01 }, 4)
       .to('.oh', { opacity: 0, duration: 0.01 }, 4)
       .to('.mouth', { opacity: 1, duration: 0.01 }, 4);
-  
-      // Atualizando o tamanho da janela
-      updateWindowSize();
-      window.addEventListener("resize", updateWindowSize);
-  
-      // Função de animação de blink
-     const blink = gsap.timeline({
-      repeat: -1,
-      repeatDelay: 5,
-      paused: true
-    });
-  
-    blink
-      .to(".eye-right, .eye-left", { duration: 0.01, opacity: 0 }, 0)
-      .to(".eye-right-2, .eye-left-2", { duration: 0.01, opacity: 1 }, 0)
-      .to(".eye-right, .eye-left", { duration: 0.01, opacity: 1 }, 0.15)
-      .to(".eye-right-2 , .eye-left-2", { duration: 0.01, opacity: 0 }, 0.15);
-  
-  
-    // Função que anima a face com base na posição do mouse
-    function animateFace() {
-      if (!xPosition) return;
-      if (storedXPosition === xPosition && storedYPosition === yPosition) return; // Não recalcula se as coordenadas não mudaram
-  
-      const x = percentage(xPosition, width) - 50;
-      const y = percentage(yPosition, height) - 50;
-      const yHigh = percentage(yPosition, height) - 20;
-      const yLow = percentage(yPosition, height) - 80;
-  
-      gsap.to(".face", { yPercent: yLow / 30, xPercent: x / 30 });
-      gsap.to(".eye", { yPercent: yHigh / 3, xPercent: x / 2 });
-      gsap.to(".inner-face", { yPercent: y / 6, xPercent: x / 8 });
-      gsap.to(".hair-front", { yPercent: yHigh / 15, xPercent: x / 22 });
-      gsap.to([".hair-back", ".shadow"], { yPercent: (yLow / 20) * -1, xPercent: (x / 20) * -1 });
-      gsap.to(".ear", { yPercent: (y / 1.5) * -1, xPercent: (x / 10) * -1 });
-      gsap.to([".eyebrow-left", ".eyebrow-right"], { yPercent: y * 2.5 });
-  
-      storedXPosition = xPosition;
-      storedYPosition = yPosition;
-    }
-  
-    // Função para atualizar as coordenadas do mouse e detectar movimento rápido
-    function updateScreenCoords(event: MouseEvent) {
-      if (!dizzyIsPlaying) {
-        xPosition = event.clientX;
-        yPosition = event.clientY;
-      }
-      if (!dizzyIsPlaying && Math.abs(event.movementX) > 500) {
-        setDizzyIsPlaying(true);
-        dizzy.restart();
-      }
-    }
-  
-    // Função para adicionar o evento de movimento do mouse
-    function addMouseEvent() {
-      const safeToAnimate = window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
-      if (safeToAnimate) {
-        window.addEventListener("mousemove", updateScreenCoords);
-        gsap.ticker.add(animateFace);
-        blink.play();
-      }
-    }
+
+       updateWindowSize()
+       window.addEventListener("resize", updateWindowSize);
   
       return () => {
         window.removeEventListener("resize", updateWindowSize);
       };
-    }, []);
+    }, [ dizzyIsPlaying, xPosition, yPosition]);
 
     return (
-        <section
-        id="section-5"
-        className="flex justify-center items-center min-h-screen bg-gray-600"
-      >
-        <div className="bg-gray-900 p-8 md:p-16 flex flex-col md:flex-row items-center justify-between w-full max-w-4xl">
-              <p className="text-white">Conteúdo da Seção 5</p>
-              <svg className="me" width="500" height="400" viewBox="0 10 211.73 180" strokeLinecap="round" strokeLinejoin="round">
+    <div className="flex flex-col items-center justify-center h-full mx-auto container xl:pt-8">
+      <div className="dark:bg-[#232329] bg-[#BA9470] text-primary dark:text-white p-8 rounded-lg flex flex-col md:flex-row items-center w-full">
+        <div className="md:w-1/2 mb-4 md:mb-0">
+          <h2 className="text-xl font-bold mb-2">I&apos;m always up for a chat.</h2>
+          <p className="mb-2">
+            <span className="font-bold underline">Pop me an email</span> at hi@aa.com
+          </p>
+          <p className="mb-4">or give me a shout on social media.</p>
+          <div className="flex space-x-4">
+            <a href="https://github.com/lizis-bianca" className="dark:text-accent text-[#5e7153] text-2xl">
+              <FaGithub />
+            </a>
+            <a href="https://www.linkedin.com/in/lizis-bianca" className="dark:text-accent text-[#5e7153] text-2xl">
+              <FaLinkedinIn />
+            </a>
+            <a href="https://www.instagram.com/lizis_bianca" className="dark:text-accent text-[#5e7153] text-2xl">
+              <FaInstagram />
+            </a>
+            <a href="#" className="dark:text-accent text-[#5e7153] text-2xl">
+              <MdEmail />
+            </a>
+          </div>
+        </div>
+        <div className="md:w-1/2 flex justify-center items-center overflow-hidden">
+          <svg className="me flex-shrink-0 z-50" width="500" height="400" viewBox="0 10 211.73 180" strokeLinecap="round" strokeLinejoin="round">
                 <defs>
                   <clipPath id="background-clip">
                     <path d="M39 153.73s31.57 19.71 77.26 15.21 90.18-37.23 90.36-72.33-8.82-80.28-33.59-86.29C136.84-6.57 114.13-5.82 88-2.82S34.73 11.45 16.71 48.24C-1.5 66.64-4.88 125.2 39 153.73z" fill="none" />
@@ -284,37 +316,10 @@ export default function Contact() {
                     </g>
                   </g>
                 </g>
-              </svg>
-              <div className="flex flex-wrap gap-x-4 p-2"> 
-                <p>Find me on</p> 
-                <ul className="flex flex-1 items-center gap-x-2 sm:flex-initial">
-                  <li className="flex">
-                    <a className="inline-block p-1 sm:hover:text-link" href="https://github.com/lizis-bianca" target="_blank" rel="noopener noreferrer "> 
-                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="h-4 w-6" astro-icon="mdi:github">
-                        <path fill="currentColor" d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"></path>
-                      </svg> 
-                      <span className="sr-only">Github</span>
-                    </a> 
-                  </li>
-                  <li className="flex">
-                    <a className="inline-block p-1 sm:hover:text-link" href="https://instagram.com/lizis_bianca" target="_blank" rel="noopener noreferrer "> 
-                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="h-4 w-6" astro-icon="mdi:instagram">
-                        <path fill="currentColor" d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"></path>
-                      </svg> 
-                      <span className="sr-only">Instagram</span>
-                    </a> 
-                  </li>
-                  <li className="flex"> 
-                    <a className="inline-block p-1 sm:hover:text-link" href="https://www.linkedin.com/in/lizis-bianca/" target="_blank" rel="noopener noreferrer "> 
-                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="h-4 w-6" astro-icon="mdi:linkedin"><path fill="currentColor" d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path></svg> <span className="sr-only">LinkedIn</span> </a> </li><li className="flex"> <a className="inline-block p-1 sm:hover:text-link" href="mailto:hello@thegiftcode.dev" target="_blank" rel="noopener noreferrer me authn"> <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="h-4 w-6" astro-icon="mdi:email">
-                        <path fill="currentColor" d="m20 8-8 5-8-5V6l8 5 8-5m0-2H4c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
-                      </svg> 
-                      <span className="sr-only">email</span> 
-                    </a> 
-                  </li> 
-                </ul> 
-              </div>
-            </div>
-      </section>
+          </svg>
+        </div>
+      </div>
+      <h1 className="dark:text-white text-primary text-4xl font-bold mt-8">Hey there!</h1>
+    </div>
     )
 }

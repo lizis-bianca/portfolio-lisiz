@@ -1,6 +1,5 @@
 'use client'
 import { motion } from "framer-motion"
-import { usePathname } from "next/navigation"
 
 const stairAnimation = {
     initial: {
@@ -19,7 +18,7 @@ const reverseIndex = (index: number) => {
     return totalSteps - index - 1
 }
 
-export default function StairTransition() {
+export default function Stairs() {
     return (
         <>
         {[...Array(6)].map((_, index) => {
