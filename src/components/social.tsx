@@ -9,9 +9,9 @@ const socials = [
   },
   {
     icon: <FaLinkedinIn />,
-    path: "",
+    path: "https://www.linkedin.com/in/lizis-bianca",
   },
-  { icon: <FaInstagram />, path: "" },
+  { icon: <FaInstagram />, path: "https://www.instagram.com/lizis_bianca" },
 ];
 
 interface SocialsProps {

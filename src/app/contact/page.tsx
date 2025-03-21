@@ -234,10 +234,10 @@ export default function Contact() {
             <a href="https://github.com/lizis-bianca" className="dark:text-accent text-[#5e7153] text-2xl">
               <FaGithub />
             </a>
-            <a href="#" className="dark:text-accent text-[#5e7153] text-2xl">
+            <a href="https://www.linkedin.com/in/lizis-bianca" className="dark:text-accent text-[#5e7153] text-2xl">
               <FaLinkedinIn />
             </a>
-            <a href="#" className="dark:text-accent text-[#5e7153] text-2xl">
+            <a href="https://www.instagram.com/lizis_bianca" className="dark:text-accent text-[#5e7153] text-2xl">
               <FaInstagram />
             </a>
             <a href="#" className="dark:text-accent text-[#5e7153] text-2xl">

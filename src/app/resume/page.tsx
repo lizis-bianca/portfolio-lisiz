@@ -98,10 +98,10 @@ export default function Resume() {
                 <ul className="grid grid-cols-1 lg:grid-cols-2 gap-[30px]">
                   {experience.items.map((item, index) => {
                     return (<li key={index} className="dark:bg-[#232329] bg-[#BA9470] h-[184px] py-6 px-10 rounded-xl flex flex-col justify-center items-center lg:items-start gap-1">
-                      <span className="text-accent">{item.duration}</span>
+                      <span className="text-[#c66828] font-bold">{item.duration}</span>
                       <h3 className="text-xl max-w-[268px] min-h-[60px] text-center lg:text-left">{item.position}</h3>
                       <div className="flex items-center gap-3">
-                        <span className="w-[6px] h-[6px] rounded-full bg-accent"></span>
+                        <span className="w-[6px] h-[6px] rounded-full bg-[#c66828]"></span>
                         <p className="text-primary/60 dark:text-white/60">{item.company}</p>
                       </div>
                     </li>)
@@ -118,10 +118,10 @@ export default function Resume() {
                 <ul className="grid grid-cols-1 lg:grid-cols-2 gap-[30px]">
                   {education.items.map((item, index) => {
                     return (<li key={index} className="dark:bg-[#232329] bg-[#BA9470] h-[184px] py-6 px-10 rounded-xl flex flex-col justify-center items-center lg:items-start gap-1">
-                      <span className="text-accent">{item.duration}</span>
+                      <span className="text-[#c66828] font-bold">{item.duration}</span>
                       <h3 className="text-xl max-w-[268px] min-h-[60px] text-center lg:text-left">{item.degree}</h3>
                       <div className="flex items-center gap-3">
-                        <span className="w-[6px] h-[6px] rounded-full bg-accent"></span>
+                        <span className="w-[6px] h-[6px] rounded-full bg-[#c66828]"></span>
                         <p className="text-primary/60 dark:text-white/60">{item.institution}</p>
                       </div>
                     </li>)

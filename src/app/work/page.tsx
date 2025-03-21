@@ -58,7 +58,7 @@ export default function Work() {
         <div className="flex flex-col xl:flex-row xl:gap-[30px]">
           <div className="w-full xl:w-[50%] xl:h-[460px] flex flex-col xl:justify-between order-2 xl:order-none">
             <div className="flex flex-col gap-[30px] h-[50%]">
-              <div className="text-8xl leading-none font-extrabold text-transparent text-outline">
+              <div className="text-8xl leading-none font-extrabold text-primary dark:text-transparent text-outline">
                 {project.num}
               </div>
               <h2 className="text-[42px] font-bold leading-none text-primary dark:text-white group-hover:text-accent transition-all duration-500 capitalize">
@@ -129,7 +129,7 @@ export default function Work() {
                 );
               })}
               <WorkSliderBtns containerStyles="flex gap-2 absolute right-8 bottom-[calc(50%_-_22px)] xl:bottom-0 z-20 w-full justify-between xl:w-max xl:justify-none"
-              btnStyles="bg-accent hover:bg-accent-hover text-primary text-[22px] w-[44px] flex justify-center items-center transition-all"
+              btnStyles="bg-accent hover:bg-accent-hover text-primary text-[22px] w-[44px] flex justify-center items-center transition-all rounded-lg"
                iconsStyles=""
                />
             </Swiper>

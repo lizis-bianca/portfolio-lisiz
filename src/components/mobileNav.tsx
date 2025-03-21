@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
 import Link from "next/link"
 import {CiMenuFries} from 'react-icons/ci'
 import { ModeToggle } from "./modeToggle"
+import { useTranslations } from "next-intl"
 
 const links = [
     { name: 'home', path: '/' },
@@ -15,6 +16,8 @@ const links = [
 
 export default function MobileNav() {
     const pathname = usePathname()
+    const t = useTranslations('nav')
+
     return (
     <Sheet>
         <SheetTrigger className="flex justify-center items-center">
@@ -31,7 +34,7 @@ export default function MobileNav() {
             <nav className="flex flex-col justify-center items-center gap-8">
                 {links.map((link, index) => {
                     return <Link href={link.path} key={index} className={`text-xl capitalize hover:text-accent transition-all ${pathname === link.path && 'text-accent border-b-2 border-accent' }`}>
-                        {link.name}
+                        {t(link.name)}
                     </Link>
              })}
              <ModeToggle side="bottom"/>

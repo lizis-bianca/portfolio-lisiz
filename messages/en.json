@@ -1,3 +1,22 @@
 {
-    "HomePage": {}
+    "homePage": {
+        "p": ""
+    },
+    "languageSwitcher": {
+        "DropdownMenuLabel": "Select Language",
+        "DropdownMenuRadioItem1": "English",
+        "DropdownMenuRadioItem2": "Portuguese"
+    },
+    "modeToggle": {
+        "DropdownMenuItem1": "Light",
+        "DropdownMenuItem2": "Dark",
+        "DropdownMenuItem3": "System"
+    },
+    "nav": {
+        "home": "home",
+        "services": "services",
+        "resume": "resume",
+        "work": "work",
+        "contact": "contact"
+    }
 }
