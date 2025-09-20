@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { CustomEase } from "gsap/CustomEase";
-import { FaGithub, FaLinkedinIn, FaInstagram } from "react-icons/fa";
+import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 
 export default function Contact() {
@@ -239,13 +239,7 @@ export default function Contact() {
             >
               <FaLinkedinIn />
             </a>
-            <a
-              href="https://www.instagram.com/lizis_bianca"
-              className="dark:text-accent text-[#5e7153] text-2xl"
-            >
-              <FaInstagram />
-            </a>
-            <a href="#" className="dark:text-accent text-[#5e7153] text-2xl">
+            <a href="mailto:lzsbianca@gmail.com" className="dark:text-accent text-[#5e7153] text-2xl">
               <MdEmail />
             </a>
           </div>
