@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { FaGithub, FaLinkedinIn, FaInstagram } from "react-icons/fa";
+import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
 const socials = [
   {
@@ -10,8 +10,7 @@ const socials = [
   {
     icon: <FaLinkedinIn />,
     path: "https://www.linkedin.com/in/lizis-bianca",
-  },
-  { icon: <FaInstagram />, path: "https://www.instagram.com/lizis_bianca" },
+  }
 ];
 
 interface SocialsProps {
